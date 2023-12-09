@@ -83,18 +83,22 @@ class Snake:
       game.canvas.create_rectangle(coord.x*32, coord.y*32, coord.x*32+32, coord.y*32+32, fill=SNAKE_COLOR)
 
 class Food:
-  def __init__(self):
+  def __init__(self, snake):
     self.pos = None
-    self.generate_food()
+    self.generate_food(snake)
     
-  def generate_food(self):
+  def generate_food(self, snake):
     '''
     Exercise 4:
     Randomly generate the position of the food
     Assign the attribute pos to the newly generated position
     '''
-    random_x = random.randint(0, 14)
-    random_y = random.randint(0, 14)
+    valid_food_position = False
+    while valid_food_position == False:
+      random_x = random.randint(0, 14)
+      random_y = random.randint(0, 14)
+      if Coordinate(random_x, random_y) not in snake.body:
+        valid_food_position = True
     self.pos = Coordinate(random_x, random_y)
 
   def render(self, game):
@@ -123,8 +127,8 @@ class Game:
     self.canvas.pack()
     
     # Initialise Food and Snake
-    self.food = Food()
     self.snake = Snake()
+    self.food = Food(self.snake)
     
     # Bind keyboard events to canvas
     self.window.bind('<KeyPress>', self.on_key_press)
@@ -139,7 +143,6 @@ class Game:
     Edit this such that you cannot turn back
     180 degrees and eat yourself
     '''
-    
     if event.keysym == 'w' and self.snake.direction != 'DOWN':
       self.snake.direction = 'UP'
     elif event.keysym == 's'and self.snake.direction != 'UP':
@@ -165,7 +168,7 @@ class Game:
 
     # Check if snake has eaten the food
     if self.snake.has_eaten(self.food):
-      self.food.generate_food()
+      self.food.generate_food(self.snake)
       self.score += 1
 
     # Check if snake is still alive
