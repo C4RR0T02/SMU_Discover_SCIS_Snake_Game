@@ -1,4 +1,5 @@
 from tkinter import *
+import random
 
 # These are the configurations for our application
 GAME_SPEED = 150
@@ -37,6 +38,17 @@ class Snake:
     in the direction it is facing.
     Fill in the code below
     '''
+    current_head = self.body[0]
+    if self.direction == 'UP':
+      new_head = Coordinate(current_head.x, current_head.y - 1)
+    elif self.direction == 'DOWN':
+      new_head = Coordinate(current_head.x, current_head.y + 1)
+    elif self.direction == 'LEFT':
+      new_head = Coordinate(current_head.x - 1, current_head.y)
+    elif self.direction == 'RIGHT':
+      new_head = Coordinate(current_head.x + 1, current_head.y)
+    self.body.pop(-1)
+    self.body.insert(0, new_head)
     pass
 
   def is_alive(self):
@@ -46,6 +58,11 @@ class Snake:
     still alive, or if it has eaten itself.
     Fill in the code below
     '''
+    current_head = self.body[0]
+    if not current_head.is_within_board():
+      return False
+    if self.body[0] in self.body[1:]:
+      return False
     return True
 
   def has_eaten(self, food):
@@ -56,7 +73,10 @@ class Snake:
     Increase the length of the snake body by 1 if food is eaten.
     Fill in the code below
     '''
-    pass
+    if self.body[0] == food.pos:
+      self.body.append(self.body[-1])
+      return True
+    return False
     
   def render(self, game):
     for coord in self.body:
@@ -73,8 +93,10 @@ class Food:
     Randomly generate the position of the food
     Assign the attribute pos to the newly generated position
     '''
-    self.pos = Coordinate(0, 0)
-  
+    random_x = random.randint(0, 14)
+    random_y = random.randint(0, 14)
+    self.pos = Coordinate(random_x, random_y)
+
   def render(self, game):
     game.canvas.create_oval(self.pos.x*32, self.pos.y*32, self.pos.x*32+32, self.pos.y*32+32, fill=FOOD_COLOR)
 
@@ -117,13 +139,14 @@ class Game:
     Edit this such that you cannot turn back
     180 degrees and eat yourself
     '''
-    if event.keysym == 'w':
+    
+    if event.keysym == 'w' and self.snake.direction != 'DOWN':
       self.snake.direction = 'UP'
-    elif event.keysym == 's':
+    elif event.keysym == 's'and self.snake.direction != 'UP':
       self.snake.direction = 'DOWN'
-    elif event.keysym == 'a':
+    elif event.keysym == 'a' and self.snake.direction != 'RIGHT':
       self.snake.direction = 'LEFT'
-    elif event.keysym == 'd':
+    elif event.keysym == 'd' and self.snake.direction != 'LEFT':
       self.snake.direction = 'RIGHT'
     elif event.keysym == 'q':
       exit(0)
